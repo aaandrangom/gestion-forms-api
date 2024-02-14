@@ -121,6 +121,7 @@ exports.login = async (req, res) => {
 
     res.json({
       message: "Inicio de sesión exitoso.",
+      user: user,
       token: token,
     });
   } catch (error) {
