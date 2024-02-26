@@ -10,9 +10,7 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(
-  cors({ origin: "https://main--gestion-formularios-mcevallos.netlify.app" })
-);
+app.use(cors({ origin: "https://gestion-formularios-mcevallos.netlify.app" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
