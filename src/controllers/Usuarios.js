@@ -100,7 +100,6 @@ exports.login = async (req, res) => {
     const user = await Usuario.findOne({ where: { email } });
 
     if (!user) {
-      // Usuario no encontrado
       const activityDetails = {
         cedula: "0",
         activitytype: "Inicio de sesión fallido",
