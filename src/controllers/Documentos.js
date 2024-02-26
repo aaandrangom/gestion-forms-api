@@ -6,24 +6,14 @@ const ImageModule = require("docxtemplater-image-module-free");
 const { format, parseISO } = require("date-fns");
 const { es } = require("date-fns/locale");
 const { findFormByTemplateName } = require("../controllers/Formularios");
+const { createFormSchema } = require("../utils/validationCamposFormulario");
+const jsonData = fs.readFileSync(
+  path.join(__dirname, "../config/configuracionFormularios.json"),
+  "utf8"
+);
+const { formularios } = JSON.parse(jsonData);
 
-async function getFormDetails(templatename) {
-  try {
-    const formulario = await findFormByTemplateName(templatename);
-    if (formulario) {
-      return { formname: formulario.formname + ".docx" };
-    } else {
-      return { success: false, message: "Formulario no encontrado" };
-    }
-  } catch (error) {
-    console.error("Error al obtener los detalles del formulario:", error);
-    return {
-      success: false,
-      message: "Error al buscar el formulario",
-      error: error.message,
-    };
-  }
-}
+const { schema: formSchema, errors } = createFormSchema(formularios.campos);
 
 const generateDocument = (data, templatePath, imagePath) => {
   const content = fs.readFileSync(path.resolve(templatePath), "binary");
@@ -64,7 +54,7 @@ const generateDocument = (data, templatePath, imagePath) => {
       stack: error.stack,
       properties: error.properties,
     };
-    console.log(JSON.stringify({ error: e }));
+    console.error(JSON.stringify({ error: e }));
     throw error;
   }
 
@@ -76,17 +66,14 @@ const DocumentController = {
     try {
       const formData = req.body;
       const templateName = formData.templateKey;
-      const formTemplate = await getFormDetails(templateName);
-
-      console.log(templateName);
+      const formTemplate = await findFormByTemplateName(templateName);
 
       if (!formTemplate) {
         return res.status(400).send("Plantilla no encontrada");
       }
 
-      const templatePath = `./src/templates/${formTemplate.formname}`;
+      const templatePath = `./src/templates/${formTemplate.formname}.docx`;
 
-      // Verificar la presencia de imagePath y fecha en formData
       const imagePath = formData.imagePath
         ? `./src/images/${formData.imagePath}`
         : null;
@@ -102,10 +89,23 @@ const DocumentController = {
         logo: imagePath,
       };
 
+      const validationResult = formSchema.safeParse(processedData);
+
+      if (!validationResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: "Error de validación",
+          errors: validationResult.error.errors.map((error) => ({
+            campo: error.path.join("."),
+            mensaje: error.message,
+          })),
+        });
+      }
+
       const documentBuffer = generateDocument(
         processedData,
         templatePath,
-        imagePath // Podría ser null si no hay imagePath
+        imagePath
       );
 
       const dateStr = new Date().toISOString().slice(0, 10);
@@ -119,6 +119,14 @@ const DocumentController = {
     } catch (error) {
       console.error("Error al generar el documento:", error);
       if (!res.headersSent) {
+        if (error.issues) {
+          // Usamos error.issues en lugar de error.errors
+          return res.status(400).json({
+            success: false,
+            message: "Error de validación",
+            errors: error.issues.map((issue) => issue.message),
+          });
+        }
         res.status(500).send("Error interno del servidor");
       }
     }

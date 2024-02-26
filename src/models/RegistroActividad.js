@@ -5,7 +5,7 @@ class RegistroActividad extends Model {}
 
 RegistroActividad.init(
   {
-    actividadid: {
+    activityid: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -20,6 +20,7 @@ RegistroActividad.init(
     },
     description: {
       type: DataTypes.TEXT,
+      allowNull: false,
     },
     timestamp: {
       type: DataTypes.DATE,
@@ -27,9 +28,7 @@ RegistroActividad.init(
     },
     ipaddress: {
       type: DataTypes.STRING,
-    },
-    additionalinfo: {
-      type: DataTypes.TEXT,
+      allowNull: false,
     },
   },
   {
@@ -39,4 +38,4 @@ RegistroActividad.init(
   }
 );
 
-module.exports = RegistroActividades;
+module.exports = RegistroActividad;

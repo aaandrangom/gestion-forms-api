@@ -4,6 +4,7 @@ const userRoutes = require("./routes/userRoutes");
 const formularioRoutes = require("./routes/formRoutes");
 const respuestaFormularioRoutes = require("./routes/responseFormRoutes");
 const documentRoutes = require("./routes/documentRoutes");
+const camposFormulario = require("./routes/fieldsForm");
 
 const cors = require("cors");
 
@@ -20,12 +21,13 @@ app.use("/api/usuario", userRoutes);
 app.use("/api/formulario", formularioRoutes);
 app.use("/api/respuesta", respuestaFormularioRoutes);
 app.use("/api/documento", documentRoutes);
+app.use("/api/campos", camposFormulario);
 
 const PORT = process.env.PORT || 3000;
 
 sequelize.sync().then(() => {
   app.listen(PORT, () =>
-    console.log(`Servidor corriendo en el puerto ${PORT}`)
+    console.log(`Servidor corriendo en el puerto http://localhost:${PORT}.com`)
   );
 });
 

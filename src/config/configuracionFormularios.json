@@ -1,0 +1,106 @@
+{
+  "formularios": {
+    "campos": [
+      {
+        "nombreCampo": "ruc",
+        "nombreLabel": "RUC",
+        "tipo": "number",
+        "validaciones": {
+          "longitud": 10
+        }
+      },
+      {
+        "nombreCampo": "cedula",
+        "nombreLabel": "Cédula",
+        "tipo": "number",
+        "validaciones": {
+          "longitud": 10
+        }
+      },
+      {
+        "nombreCampo": "correo_electronico",
+        "nombreLabel": "Correo Electrónico",
+        "tipo": "string",
+        "validaciones": {
+          "formato": "email"
+        }
+      },
+      {
+        "nombreCampo": "telefono",
+        "nombreLabel": "Teléfono",
+        "tipo": "number",
+        "validaciones": {
+          "longitud": 10
+        }
+      },
+      {
+        "nombreCampo": "codigo_postal",
+        "nombreLabel": "Código Postal",
+        "tipo": "number",
+        "validaciones": {
+          "longitud": 6
+        }
+      },
+      {
+        "nombreCampo": "solvencia_indicador_dp",
+        "nombreLabel": "Indicador declarado por el proveedor (Solvencia)",
+        "tipo": "number",
+        "validaciones": {
+          "esEntero": false
+        }
+      },
+      {
+        "nombreCampo": "endeudamiento_indicador_dp",
+        "nombreLabel": "Indicador declarado por el proveedor (Razón de endeudamiento)",
+        "tipo": "number",
+        "validaciones": {
+          "esEntero": false
+        }
+      },
+      {
+        "nombreCampo": "si",
+        "nombreLabel": "¿Es intermediario (importador directo, distribuidor o comerciante) de todos los productos que conforman su oferta? (Sí)",
+        "tipo": "string",
+        "validaciones": {
+          "longitud": 1
+        }
+      },
+      {
+        "nombreCampo": "no",
+        "nombreLabel": "¿Es intermediario (importador directo, distribuidor o comerciante) de todos los productos que conforman su oferta? (No)",
+        "tipo": "string",
+        "validaciones": {
+          "longitud": 1
+        }
+      },
+      {
+        "nombreCampo": "vi",
+        "nombreLabel": "¿Cuánto va a importar o importó, directamente, para cumplir con esta oferta?",
+        "tipo": "number",
+        "validaciones": {
+          "esEntero": false
+        }
+      },
+      {
+        "nombreCampo": "vc",
+        "nombreLabel": "¿Cuánto va a comprar o compró en el Ecuador, pero que es importado, para cumplir con esta oferta?",
+        "tipo": "number",
+        "validaciones": {
+          "esEntero": false
+        }
+      },
+      {
+        "nombreCampo": "ciudad",
+        "nombreLabel": "Ciudad",
+        "tipo": "string",
+        "validaciones": {}
+      },
+      {
+        "nombreCampo": "nombre",
+        "nombreLabel": "Nombre",
+        "tipo": "string",
+        "validaciones": {}
+      }
+    ]
+  }
+}

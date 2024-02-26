@@ -9,4 +9,6 @@ router.post("/verificar", userController.verifyUser);
 
 router.post("/autenticacion", userController.login);
 
+router.post("/administrador", userController.registerAdmin);
+
 module.exports = router;

@@ -2,7 +2,6 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-// Configuración de almacenamiento de Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join("./src/images/");
@@ -12,12 +11,7 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const extension = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, extension);
-    const sanitizedBasename = basename.replace(/[^a-zA-Z0-9]/g, "-");
-    const newFilename = `${sanitizedBasename}-${uniqueSuffix}${extension}`;
-    cb(null, newFilename);
+    cb(null, file.originalname);
   },
 });
 
@@ -35,6 +29,14 @@ const ImageController = {
           error: "No se pudo cargar el archivo por un error desconocido.",
         });
       }
+
+      // Verificar si req.file está definido
+      if (!req.file) {
+        return res.status(400).json({
+          message: "No se proporcionó ninguna imagen.",
+        });
+      }
+
       console.log("Archivo cargado:", req.file.path);
       return res.status(200).json({
         message: "Archivo cargado con éxito",
