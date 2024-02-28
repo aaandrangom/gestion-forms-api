@@ -6,7 +6,7 @@
         "nombreLabel": "RUC",
         "tipo": "number",
         "validaciones": {
-          "longitud": 10
+          "longitud": 13
         }
       },
       {
