@@ -5,12 +5,14 @@ const formularioRoutes = require("./routes/formRoutes");
 const respuestaFormularioRoutes = require("./routes/responseFormRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const camposFormulario = require("./routes/fieldsForm");
+const SubirPlantilla = require("./routes/UploadTemplate");
+const registroActividad = require("./routes/activities");
 
 const cors = require("cors");
 
 const app = express();
 
-app.use(cors({ origin: "https://gestion-formularios-mcevallos.netlify.app" }));
+app.use(cors({ origin: "http://localhost:4200" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -22,6 +24,8 @@ app.use("/api/formulario", formularioRoutes);
 app.use("/api/respuesta", respuestaFormularioRoutes);
 app.use("/api/documento", documentRoutes);
 app.use("/api/campos", camposFormulario);
+app.use("/api/plantillas", SubirPlantilla);
+app.use("/api/actividades", registroActividad);
 
 const PORT = process.env.PORT || 3000;
 

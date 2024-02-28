@@ -1,4 +1,7 @@
 const Formulario = require("../models/Formulario");
+const RegistroActividad = require("../controllers/RegistroActividades");
+const Usuario = require("../models/User");
+const getIpAddress = require("../utils/getIpAddress");
 
 async function findFormByTemplateName(templatename) {
   try {
@@ -84,17 +87,26 @@ const FormularioController = {
 
   async create(req, res) {
     try {
-      const { formname, description, status } = req.body;
-      // Obtenemos el último formulario para determinar el templatename
+      const { formname, description, status, cedula } = req.body;
+
+      // Buscar usuario por cedula
+      const user = await Usuario.findOne({ where: { cedula } });
+      if (!user) {
+        return res.status(404).send("Usuario no encontrado");
+      }
+
+      // Obtener el último formulario para generar el nombre del template
       const ultimoFormulario = await Formulario.findOne({
         order: [["formid", "DESC"]],
       });
-      let templatename = "template1"; // Por defecto, en caso de ser el primer formulario
+      let templatename = "template1"; // Valor predeterminado si es el primer formulario
       if (ultimoFormulario) {
         const ultimoFormid = ultimoFormulario.formid;
         const nuevoFormid = ultimoFormid + 1;
         templatename = "template" + nuevoFormid;
       }
+
+      // Crear el nuevo formulario
       const newFormulario = await Formulario.create({
         templatename,
         formname,
@@ -102,9 +114,27 @@ const FormularioController = {
         status,
         fields: null,
       });
-      res.status(201).json(newFormulario);
+
+      // Detalles de la actividad
+      const activityDetails = {
+        cedula: user.cedula,
+        activitytype: "Formulario creado",
+        description: `Se ha creado un formulario con el nombre ${newFormulario.formname}`,
+        ipaddress: getIpAddress(req),
+      };
+
+      const response = {
+        message: "Formulario creado con éxito",
+        form: newFormulario,
+      };
+
+      // Crear registro de actividad
+      await RegistroActividad.create(req, res, activityDetails);
+
+      return res.status(201).json(response);
     } catch (error) {
-      res.status(500).send(error.message);
+      console.error("Error al crear el formulario:", error);
+      return res.status(500).send("Error interno del servidor");
     }
   },
 
@@ -144,89 +174,186 @@ const FormularioController = {
   async editStatusToTrue(req, res) {
     try {
       const { id } = req.params;
-      const updated = await Formulario.update(
+      const { cedula } = req.body;
+      console.log(cedula);
+      const user = await Usuario.findOne({ where: { cedula } });
+      if (!user) {
+        return res.status(404).send("Usuario no encontrado");
+      }
+
+      const beforeForm = await Formulario.findByPk(id);
+      if (!beforeForm) {
+        return res.status(404).send("Formulario no encontrado");
+      }
+
+      // Actualizar el estado del formulario a verdadero
+      const [updatedCount, [updatedFormulario]] = await Formulario.update(
         { status: true },
-        {
-          where: { formid: id },
-        }
+        { where: { formid: id }, returning: true }
       );
-      if (updated) {
-        const updatedFormulario = await Formulario.findByPk(id);
-        res.status(200).json(updatedFormulario);
+
+      if (updatedCount > 0) {
+        const activityDetails = {
+          cedula: user.cedula,
+          activitytype: "Formulario actualizado con éxito",
+          description: `El formulario con el ID ${beforeForm.formid} y nombre ${beforeForm.formname} ha sido habilitado`,
+          ipaddress: getIpAddress(req),
+        };
+
+        const response = {
+          message: "Formulario habilitado con éxito",
+          form: updatedFormulario,
+        };
+
+        // Crear registro de actividad
+        await RegistroActividad.create(req, res, activityDetails);
+
+        return res.status(200).json(response);
       } else {
-        res.status(404).send("Formulario no encontrado");
+        return res.status(404).send("Formulario no encontrado");
       }
     } catch (error) {
-      res.status(500).send(error.message);
+      console.error("Error al habilitar el formulario:", error);
+      return res.status(500).send("Error interno del servidor");
     }
   },
 
   async editStatusToFalse(req, res) {
     try {
       const { id } = req.params;
-      const updated = await Formulario.update(
+      const { cedula } = req.body;
+
+      const user = await Usuario.findOne({ where: { cedula } });
+      if (!user) {
+        return res.status(404).send("Usuario no encontrado");
+      }
+
+      // Buscar formulario por ID
+      const beforeForm = await Formulario.findByPk(id);
+      if (!beforeForm) {
+        return res.status(404).send("Formulario no encontrado");
+      }
+
+      // Actualizar el estado del formulario a falso
+      const [updatedCount, [updatedFormulario]] = await Formulario.update(
         { status: false },
-        {
-          where: { formid: id },
-        }
+        { where: { formid: id }, returning: true }
       );
-      if (updated) {
-        const updatedFormulario = await Formulario.findByPk(id);
-        res.status(200).json(updatedFormulario);
+
+      if (updatedCount > 0) {
+        const activityDetails = {
+          cedula: user.cedula,
+          activitytype: "Formulario actualizado con éxito",
+          description: `El formulario con el ID ${beforeForm.formid} y nombre ${beforeForm.formname} ha sido deshabilitado`,
+          ipaddress: getIpAddress(req),
+        };
+
+        const response = {
+          message: "Formulario deshabilitado con éxito",
+          form: updatedFormulario,
+        };
+
+        // Crear registro de actividad
+        await RegistroActividad.create(req, res, activityDetails);
+
+        return res.status(200).json(response);
       } else {
-        res.status(404).send("Formulario no encontrado");
+        return res.status(404).send("Formulario no encontrado");
       }
     } catch (error) {
-      res.status(500).send(error.message);
+      console.error("Error al deshabilitar el formulario:", error);
+      return res.status(500).send("Error interno del servidor");
     }
   },
 
   async updateForm(req, res) {
     try {
       const { id } = req.params;
-      const { templatename } = req.body;
-      const updated = await Formulario.update(
-        { templatename: templatename },
-        {
-          where: { formid: id },
-        }
+      const { templatename, cedula } = req.body;
+
+      // Buscar usuario por cedula
+      const user = await Usuario.findOne({ where: { cedula } });
+      if (!user) {
+        return res.status(404).send("Usuario no encontrado");
+      }
+
+      // Actualizar el formulario
+      const [updatedCount, [updatedFormulario]] = await Formulario.update(
+        { templatename },
+        { where: { formid: id }, returning: true }
       );
-      if (updated) {
-        const updatedFormulario = await Formulario.findByPk(id);
-        res.status(200).json(updatedFormulario);
+
+      if (updatedCount > 0) {
+        const activityDetails = {
+          cedula: user.cedula,
+          activitytype: "Formulario actualizado con éxito",
+          description: `El formulario con el ID ${id} ha sido actualizado`,
+          ipaddress: getIpAddress(req),
+        };
+
+        const response = {
+          message: "Formulario actualizado con éxito",
+          form: updatedFormulario,
+        };
+
+        // Crear registro de actividad
+        await RegistroActividad.create(req, res, activityDetails);
+        return res.status(200).json(response);
       } else {
-        res.status(404).send("Formulario no encontrado");
+        return res.status(404).send("Formulario no encontrado");
       }
     } catch (error) {
-      res.status(500).send(error.message);
+      console.error("Error al actualizar el formulario:", error);
+      return res.status(500).send("Error interno del servidor");
     }
   },
 
   async updateFields(req, res) {
     try {
       const { id } = req.params;
-      const { formname, description, fields } = req.body; // Aquí se obtienen los datos del formulario del cuerpo de la solicitud
+      const { formname, description, fields, cedula } = req.body;
+
+      // Buscar usuario por cedula
+      const user = await Usuario.findOne({ where: { cedula } });
+      if (!user) {
+        return res.status(404).send("Usuario no encontrado");
+      }
+
+      // Actualizar los campos del formulario
       const [updatedCount] = await Formulario.update(
-        { formname, description, fields }, // Aquí se actualizan los campos en la base de datos
-        {
-          where: { formid: id },
-        }
+        { formname, description, fields },
+        { where: { formid: id } }
       );
+
       if (updatedCount > 0) {
         const updatedFormulario = await Formulario.findByPk(id);
         if (updatedFormulario) {
-          res.status(200).json(updatedFormulario);
+          const activityDetails = {
+            cedula: user.cedula,
+            activitytype: "Formulario actualizado con éxito",
+            description: `Se actualizaron los campos del formulario con el ID ${id}`,
+            ipaddress: getIpAddress(req),
+          };
+
+          const response = {
+            message: "Formulario actualizado con éxito",
+            form: updatedFormulario,
+          };
+
+          // Crear registro de actividad
+          await RegistroActividad.create(req, res, activityDetails);
+          return res.status(200).json(response);
         } else {
-          res.status(404).send("Formulario no encontrado");
+          return res.status(404).send("Formulario no encontrado");
         }
       } else {
-        res
+        return res
           .status(404)
           .send("Formulario no encontrado o no se requirió actualización");
       }
     } catch (error) {
       console.error("Error al actualizar los campos del formulario:", error);
-      res.status(500).send(error.message);
+      return res.status(500).send("Error interno del servidor");
     }
   },
 };

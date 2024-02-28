@@ -12,6 +12,14 @@ exports.register = async (req, res) => {
   try {
     const userExists = await Usuario.findOne({ where: { email } });
     if (userExists) {
+      const activityDetails = {
+        cedula: "0",
+        activitytype: "Registro de usuario fallido",
+        description: `El usuario con email ${userExists.email} ya existe`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
       return res.status(400).send("El correo electrónico ya está registrado.");
     }
 
@@ -38,12 +46,22 @@ exports.register = async (req, res) => {
       text: `Hola ${nombres} ${apellidos},\n\nGracias por registrarte. Por favor, verifica tu cuenta usando el siguiente código: ${verificationCode}`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
         console.log(error);
         res.status(500).send("Error al enviar el correo de verificación");
       } else {
         console.log("Correo de verificación enviado: " + info.response);
+
+        const activityDetails = {
+          cedula: "0",
+          activitytype: "Registro de usuario exitoso",
+          description: `Se ha creado un usuario con la cedula: ${newUser.cedula}`,
+          ipaddress: getIpAddress(req),
+        };
+
+        await RegistroActividad.create(req, res, activityDetails);
+
         res.status(201).json({
           message:
             "Usuario registrado. Por favor, verifica tu correo electrónico.",
@@ -70,10 +88,26 @@ exports.verifyUser = async (req, res) => {
   try {
     const user = await Usuario.findOne({ where: { email } });
     if (!user) {
+      const activityDetails = {
+        cedula: "0",
+        activitytype: "Verificación de usuario fallida",
+        description: `Usuario no encontrado: ${email}`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
       return res.status(404).send({ message: "Usuario no encontrado." });
     }
 
     if (user.isverified) {
+      const activityDetails = {
+        cedula: user.cedula,
+        activitytype: "Verificación de usuario fallida",
+        description: `El usuario ${user.cedula} ya ha sido verificado`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
       return res
         .status(400)
         .send({ message: "Este usuario ya ha sido verificado." });
@@ -83,8 +117,25 @@ exports.verifyUser = async (req, res) => {
       user.isverified = true;
       await user.save();
 
+      const activityDetails = {
+        cedula: user.cedula,
+        activitytype: "Verificación de usuario exitosa",
+        description: `El usuario ${user.username} ha sido verificado con éxito`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
+
       res.send({ message: "Cuenta verificada con éxito." });
     } else {
+      const activityDetails = {
+        cedula: user.cedula,
+        activitytype: "Verificación de usuario fallida",
+        description: `El usuario ${user.email} ha ingresado el código de verficación incorrecto}`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
       res.status(400).send({ message: "Código de verificación incorrecto." });
     }
   } catch (error) {
@@ -173,11 +224,31 @@ exports.login = async (req, res) => {
 };
 
 exports.registerAdmin = async (req, res) => {
-  const { cedula, nombres, apellidos, username, password, email } = req.body;
+  const {
+    cedula,
+    nombres,
+    apellidos,
+    username,
+    password,
+    email,
+    emailAdministrador,
+  } = req.body;
 
   try {
     const userExists = await Usuario.findOne({ where: { email } });
+    const userAdministrador = await Usuario.findOne({
+      where: { emailAdministrador },
+    });
+
     if (userExists) {
+      const activityDetails = {
+        cedula: userAdministrador.cedula,
+        activitytype: "Creación de usuario con rol administrador fallida",
+        description: `El administrador ${userAdministrador.email} ha intentando crear un usuario administrador con un email ya existente: ${email}`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
       return res.status(400).send("El correo electrónico ya está registrado.");
     }
 
@@ -199,17 +270,25 @@ exports.registerAdmin = async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USERNAME,
-      to: email,
-      subject: "Verificación de tu cuenta",
+      to: userAdministrador.email,
+      subject: "Verificación de tu cuenta administrador",
       text: `Hola ${nombres} ${apellidos},\n\nGracias por registrarte. Por favor, verifica tu cuenta usando el siguiente código: ${verificationCode}`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
         console.log(error);
         res.status(500).send("Error al enviar el correo de verificación");
       } else {
         console.log("Correo de verificación enviado: " + info.response);
+        const activityDetails = {
+          cedula: userAdministrador.cedula,
+          activitytype: "Creación de usuario con rol administrador exitosa",
+          description: `El administrador ${userAdministrador.email} ha creado un usuario con el rol administrador: ${newUser.email}`,
+          ipaddress: getIpAddress(req),
+        };
+
+        await RegistroActividad.create(req, res, activityDetails);
         res.status(201).json({
           message:
             "Usuario registrado. Por favor, verifica tu correo electrónico.",

@@ -88,18 +88,6 @@
         "validaciones": {
           "esEntero": false
         }
-      },
-      {
-        "nombreCampo": "ciudad",
-        "nombreLabel": "Ciudad",
-        "tipo": "string",
-        "validaciones": {}
-      },
-      {
-        "nombreCampo": "nombre",
-        "nombreLabel": "Nombre",
-        "tipo": "string",
-        "validaciones": {}
       }
     ]
   }

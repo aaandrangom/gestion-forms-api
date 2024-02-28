@@ -10,5 +10,15 @@ const RegistroActividadController = {
       throw new Error("Error interno del servidor");
     }
   },
+
+  async getAll(req, res) {
+    try {
+      const allActivities = await RegistroActividades.findAll();
+      res.json(allActivities);
+    } catch (error) {
+      console.error("Error al obtener los registros de actividad:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  },
 };
 module.exports = RegistroActividadController;

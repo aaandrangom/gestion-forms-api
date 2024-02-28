@@ -1,4 +1,5 @@
 const { Model, DataTypes } = require("sequelize");
+const moment = require("moment-timezone");
 const sequelize = require("../config/dbConfig");
 
 class RegistroActividad extends Model {}
@@ -24,7 +25,10 @@ RegistroActividad.init(
     },
     timestamp: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+      defaultValue: () => {
+        const userTimezone = "America/Guayaquil";
+        return moment().tz(userTimezone).format();
+      },
     },
     ipaddress: {
       type: DataTypes.STRING,
