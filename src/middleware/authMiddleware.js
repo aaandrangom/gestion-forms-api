@@ -18,4 +18,29 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-module.exports = authenticateToken;
+const authenticateResetToken = (req, res, next) => {
+  if (!req) {
+    return res.status(500).send("Error: Request object not provided.");
+  }
+
+  const resetToken = req.query.token;
+
+  if (!resetToken) {
+    return res
+      .status(401)
+      .send("Token de restablecimiento de contraseña no proporcionado.");
+  }
+
+  jwt.verify(resetToken, process.env.JWT_RESET_SECRET, (err, user) => {
+    if (err) {
+      return res
+        .status(403)
+        .send("Token de restablecimiento de contraseña inválido o expirado.");
+    }
+
+    req.user = user;
+    next();
+  });
+};
+
+module.exports = { authenticateToken, authenticateResetToken };

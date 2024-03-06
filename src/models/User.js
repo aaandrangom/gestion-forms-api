@@ -42,6 +42,12 @@ Usuario.init(
     verificationcode: {
       type: DataTypes.STRING,
     },
+    resetpasswordtoken: {
+      type: DataTypes.STRING,
+    },
+    resetpasswordexpires: {
+      type: DataTypes.DATE,
+    },
   },
   {
     sequelize,

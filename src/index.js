@@ -12,7 +12,7 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors({ origin: "https://gestion-formularios-mcevallos.netlify.app" }));
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:4200" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -31,7 +31,7 @@ const PORT = process.env.PORT || 3000;
 
 sequelize.sync().then(() => {
   app.listen(PORT, () =>
-    console.log(`Servidor corriendo en el puerto http://localhost:${PORT}.com`)
+    console.log(`Servidor corriendo en el puerto http://localhost:${PORT}`)
   );
 });
 

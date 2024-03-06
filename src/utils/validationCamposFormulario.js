@@ -9,9 +9,13 @@ const createFormSchema = (formFields) => {
       switch (tipo) {
         case "number":
           fieldSchema = string()
-            .refine((val) => !isNaN(val) && /^\d+$/.test(val), {
-              message: `${nombreLabel} debe contener solo dígitos`,
-            })
+            .refine(
+              (val) => !isNaN(val.replace(",", ".")) && /^\d*,?\d+$/.test(val),
+              {
+                // Modificado para aceptar decimales con coma
+                message: `${nombreLabel} debe ser un número válido`,
+              }
+            )
             .optional();
           break;
         case "string":
@@ -38,6 +42,8 @@ const createFormSchema = (formFields) => {
             }
           );
         }
+
+        // Aquí puedes agregar más validaciones para números con decimales que usan coma
       }
 
       acc[nombreCampo] = fieldSchema;

@@ -120,7 +120,6 @@ const DocumentController = {
       console.error("Error al generar el documento:", error);
       if (!res.headersSent) {
         if (error.issues) {
-          // Usamos error.issues en lugar de error.errors
           return res.status(400).json({
             success: false,
             message: "Error de validación",
