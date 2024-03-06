@@ -327,7 +327,7 @@ exports.forgotPassword = async (req, res) => {
     user.resetpasswordexpires = Date.now() + 3600000;
     await user.save();
 
-    const resetPasswordLink = `http://localhost:4200/recuperar-contraseña?token=${resetToken}`;
+    const resetPasswordLink = `https://gestion-formularios-mcevallos.netlify.app/recuperar-contraseña?token=${resetToken}`;
     const mailOptions = {
       from: process.env.EMAIL_USERNAME,
       to: email,
