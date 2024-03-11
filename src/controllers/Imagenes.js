@@ -30,7 +30,6 @@ const ImageController = {
         });
       }
 
-      // Verificar si req.file está definido
       if (!req.file) {
         return res.status(400).json({
           message: "No se proporcionó ninguna imagen.",

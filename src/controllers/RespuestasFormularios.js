@@ -17,7 +17,7 @@ const RespuestaFormularioController = {
       if (respuesta) {
         res.json(respuesta);
       } else {
-        res.status(404).send("Respuesta no encontrada");
+        res.status(404).send({ message: "Respuesta no encontrada" });
       }
     } catch (error) {
       res.status(500).send(error.message);
@@ -29,13 +29,13 @@ const RespuestaFormularioController = {
       const { cedula, formid } = req.body;
       const respuesta = await RespuestaFormulario.findOne({
         where: { cedula: cedula, formid: formid },
-        order: [["submittedat", "DESC"]], // Ordenar por ID de manera descendente
+        order: [["submittedat", "DESC"]],
       });
 
       if (respuesta) {
         res.json(respuesta);
       } else {
-        res.status(404).send("Respuestas no encontradas");
+        res.status(404).send({ message: "Respuestas no encontradas" });
       }
     } catch (error) {
       res.status(500).send(error.message);
@@ -61,7 +61,7 @@ const RespuestaFormularioController = {
         const updatedRespuesta = await RespuestaFormulario.findByPk(id);
         res.status(200).json(updatedRespuesta);
       } else {
-        res.status(404).send("Respuesta no encontrada");
+        res.status(404).send({ message: "Respuesta no encontrada" });
       }
     } catch (error) {
       res.status(500).send(error.message);
@@ -75,9 +75,9 @@ const RespuestaFormularioController = {
         where: { responseid: id },
       });
       if (deleted) {
-        res.status(204).send("Respuesta eliminada");
+        res.status(204).send({ message: "Respuesta eliminada" });
       } else {
-        res.status(404).send("Respuesta no encontrada");
+        res.status(404).send({ message: "Respuesta no encontrada" });
       }
     } catch (error) {
       res.status(500).send(error.message);

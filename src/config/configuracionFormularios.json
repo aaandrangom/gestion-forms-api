@@ -58,22 +58,6 @@
         }
       },
       {
-        "nombreCampo": "si",
-        "nombreLabel": "¿Es intermediario (importador directo, distribuidor o comerciante) de todos los productos que conforman su oferta? (Sí)",
-        "tipo": "string",
-        "validaciones": {
-          "longitud": 1
-        }
-      },
-      {
-        "nombreCampo": "no",
-        "nombreLabel": "¿Es intermediario (importador directo, distribuidor o comerciante) de todos los productos que conforman su oferta? (No)",
-        "tipo": "string",
-        "validaciones": {
-          "longitud": 1
-        }
-      },
-      {
         "nombreCampo": "vi",
         "nombreLabel": "¿Cuánto va a importar o importó, directamente, para cumplir con esta oferta?",
         "tipo": "number",
@@ -88,6 +72,30 @@
         "validaciones": {
           "esEntero": false
         }
+      },
+      {
+        "nombreCampo": "responsable_de_la_contratacion",
+        "nombreLabel": "Empleador",
+        "tipo": "string",
+        "validaciones": {}
+      },
+      {
+        "nombreCampo": "nombre_empresa",
+        "nombreLabel": "Empresa",
+        "tipo": "string",
+        "validaciones": {}
+      },
+      {
+        "nombreCampo": "nombre_departamento",
+        "nombreLabel": "Departamento",
+        "tipo": "string",
+        "validaciones": {}
+      },
+      {
+        "nombreCampo": "postulante",
+        "nombreLabel": "Postulante",
+        "tipo": "string",
+        "validaciones": {}
       }
     ]
   }

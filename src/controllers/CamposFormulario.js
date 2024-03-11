@@ -83,7 +83,6 @@ const FormulariosController = {
       let configuracion = await FormulariosController.leerConfiguracion();
       const campos = configuracion.formularios.campos;
 
-      // Encontrar el índice del campo a eliminar
       const index = campos.findIndex(
         (campo) => campo.nombreCampo === nombreCampo
       );
@@ -92,10 +91,8 @@ const FormulariosController = {
         return res.status(404).send({ message: "Campo no encontrado" });
       }
 
-      // Eliminar el campo del arreglo de campos
       campos.splice(index, 1);
 
-      // Actualizar la configuración en el archivo
       await FormulariosController.escribirConfiguracion(configuracion);
 
       res.send({ message: "Campo eliminado exitosamente" });

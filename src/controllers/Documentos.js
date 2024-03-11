@@ -69,7 +69,7 @@ const DocumentController = {
       const formTemplate = await findFormByTemplateName(templateName);
 
       if (!formTemplate) {
-        return res.status(400).send("Plantilla no encontrada");
+        return res.status(400).send({ message: "Plantilla no encontrada" });
       }
 
       const templatePath = `./src/templates/${formTemplate.formname}.docx`;
@@ -126,7 +126,7 @@ const DocumentController = {
             errors: error.issues.map((issue) => issue.message),
           });
         }
-        res.status(500).send("Error interno del servidor");
+        res.status(500).send({ message: "Error interno del servidor" });
       }
     }
   },

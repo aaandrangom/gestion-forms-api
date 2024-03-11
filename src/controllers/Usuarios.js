@@ -25,6 +25,19 @@ exports.register = async (req, res) => {
         .send({ message: "El correo electrónico ya está registrado." });
     }
 
+    const userWithCedula = await Usuario.findOne({ where: { cedula } });
+    if (userWithCedula) {
+      const activityDetails = {
+        cedula: "0",
+        activitytype: "Registro de usuario fallido",
+        description: `El usuario con cédula ${cedula} ya existe`,
+        ipaddress: getIpAddress(req),
+      };
+
+      await RegistroActividad.create(req, res, activityDetails);
+      return res.status(400).send({ message: "La cédula ya está registrada." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationCode = generateVerificationCode(6);
 
@@ -308,6 +321,8 @@ exports.registerAdmin = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
+
+  console.log(email);
 
   try {
     const user = await Usuario.findOne({ where: { email } });

@@ -1,6 +1,7 @@
 // respuestasformularios.js
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/dbConfig");
+const Formulario = require("../models/Formulario");
 
 class RespuestasFormulario extends Model {}
 
@@ -34,5 +35,7 @@ RespuestasFormulario.init(
     timestamps: false,
   }
 );
+
+RespuestasFormulario.belongsTo(Formulario, { onDelete: "CASCADE" });
 
 module.exports = RespuestasFormulario;

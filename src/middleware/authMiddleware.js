@@ -1,19 +1,32 @@
 const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = req.headers["authorization"];
 
-  if (token == null) {
+  if (!token) {
+    console.log("Token no proporcionado en la solicitud");
     return res.sendStatus(401);
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
     if (err) {
+      console.log(token);
+      console.error("Error al verificar el token:", err);
       return res.sendStatus(403);
     }
 
-    req.user = user;
+    const userRole = decodedToken.userRol;
+    console.log("Token decodificado:", decodedToken);
+    console.log("Rol:", userRole);
+
+    if (userRole !== 1) {
+      console.log("Usuario no autorizado para acceder a esta ruta");
+      return res
+        .status(403)
+        .json({ message: "No tienes permiso para acceder a esta ruta." });
+    }
+
+    console.log("Usuario autorizado, permitiendo acceso a la ruta");
     next();
   });
 };

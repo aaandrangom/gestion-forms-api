@@ -59,26 +59,7 @@ const FileUploadController = {
           .json({ error: "Error al actualizar el archivo" });
       }
 
-      const nuevoNombreArchivo = req.file.filename;
-
-      const rutaArchivoActual = path.join(
-        "./src/templates/",
-        nombreArchivoActual
-      );
-      const rutaNuevoArchivo = path.join(
-        "./src/templates/",
-        nuevoNombreArchivo
-      );
-
-      // Verifica si el archivo actual existe
-      if (fs.existsSync(rutaArchivoActual)) {
-        // Elimina el archivo actual si existe
-        fs.unlinkSync(rutaArchivoActual);
-      }
-
-      // Renombra el nuevo archivo
-      fs.renameSync(rutaNuevoArchivo, rutaArchivoActual);
-      res.setHeader("Cache-Control", "no-store"); // Deshabilitar la caché
+      res.setHeader("Cache-Control", "no-store");
 
       res.status(200).json({ message: "Archivo actualizado exitosamente" });
     });

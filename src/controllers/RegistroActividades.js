@@ -6,18 +6,18 @@ const RegistroActividadController = {
       const newActivity = await RegistroActividades.create(activityDetails);
       return newActivity;
     } catch (error) {
-      console.error("Error al crear el registro de actividad:", error);
-      throw new Error("Error interno del servidor");
+      res.status(500).json({ message: "Intentar más tarde" });
     }
   },
 
   async getAll(req, res) {
     try {
-      const allActivities = await RegistroActividades.findAll();
+      const allActivities = await RegistroActividades.findAll({
+        order: [["activityid", "DESC"]],
+      });
       res.json(allActivities);
     } catch (error) {
-      console.error("Error al obtener los registros de actividad:", error);
-      res.status(500).json({ error: "Error interno del servidor" });
+      res.status(500).json({ message: "Intentar más tarde" });
     }
   },
 };
